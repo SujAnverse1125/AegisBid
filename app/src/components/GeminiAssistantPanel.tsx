@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { Sparkles, Terminal } from 'lucide-react';
+import { Sparkles, Terminal, PlusCircle } from 'lucide-react';
 import { GeminiPlan } from '../domain/types';
 import { requestAssistantPlan } from '../lib/api/backendClient';
 
-export const GeminiAssistantPanel: React.FC = () => {
+export interface GeminiAssistantPanelProps {
+  onDeployPlan?: (plan: GeminiPlan) => void;
+}
+
+export const GeminiAssistantPanel: React.FC<GeminiAssistantPanelProps> = ({ onDeployPlan }) => {
   const [prompt, setPrompt] = useState(
     'Procurement of 500 radiation-hardened satellite communication transceivers. Minimum vendor reserve is 120,000 tDUST.'
   );
@@ -200,6 +204,36 @@ export const GeminiAssistantPanel: React.FC = () => {
               <div style={{ fontSize: '0.75rem', opacity: 0.6, borderTop: '1px solid rgba(244,244,240,0.2)', paddingTop: '1rem' }}>
                 <strong style={{ color: 'var(--accent-vermilion, #ff3300)' }}>SYS_NOTE:</strong> {plan.complianceNotes}
               </div>
+
+              {onDeployPlan && (
+                <button
+                  type="button"
+                  onClick={() => onDeployPlan(plan)}
+                  style={{
+                    marginTop: '1rem',
+                    width: '100%',
+                    padding: '0.85rem',
+                    backgroundColor: 'var(--accent-vermilion, #ff3300)',
+                    color: '#fff',
+                    border: 'none',
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    letterSpacing: '0.05em',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    transition: 'opacity 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  <PlusCircle size={16} />
+                  <span>DEPLOY AS LIVE TENDER TO LEDGER &rarr;</span>
+                </button>
+              )}
             </div>
           )}
         </div>

@@ -21,12 +21,25 @@ export const BidderHaven: React.FC<BidderHavenProps> = ({
   const [identity, setIdentity] = useState<LocalBidderSecret | null>(null);
   const [simAuctionId, setSimAuctionId] = useState<string>(auctions[0]?.id || '');
   const [simAmount, setSimAmount] = useState<string>('150000');
+  const [saltHex, setSaltHex] = useState<string>(() =>
+    Array.from(crypto.getRandomValues(new Uint8Array(32)))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+  );
   const [simCommitment, setSimCommitment] = useState<string>('');
   const [showSecret, setShowSecret] = useState<boolean>(false);
 
   useEffect(() => {
     getOrCreateDefaultIdentity().then(setIdentity);
   }, []);
+
+  const handleRerollSalt = () => {
+    setSaltHex(
+      Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('')
+    );
+  };
 
   const selectedSimAuction = auctions.find((a) => a.id === simAuctionId) || auctions[0];
   const simValuation = BigInt(simAmount || '0');
@@ -40,10 +53,10 @@ export const BidderHaven: React.FC<BidderHavenProps> = ({
         selectedSimAuction.auctionIdHex,
         identity.derivedIdentityHex,
         simValuation,
-        '0000000000000000000000000000000000000000000000000000000000000001'
+        saltHex
       ).then(setSimCommitment);
     }
-  }, [identity, selectedSimAuction, simValuation]);
+  }, [identity, selectedSimAuction, simValuation, saltHex]);
 
   const handleExportBackup = () => {
     const backupData = {
@@ -146,33 +159,71 @@ export const BidderHaven: React.FC<BidderHavenProps> = ({
           </div>
 
           <div className="form-group">
-            <label className="form-label" style={{ fontSize: '1rem', textTransform: 'uppercase' }}>Simulated Valuation ({selectedSimAuction?.currency})</label>
+            <label className="form-label" style={{ fontSize: '0.9rem', textTransform: 'uppercase' }}>Valuation Input ({selectedSimAuction?.currency})</label>
             <input
               type="number"
               className="form-input"
               value={simAmount}
               onChange={(e) => setSimAmount(e.target.value)}
-              style={{ fontSize: '1.5rem', padding: '1rem', border: '2px solid #000', borderRadius: '0', width: '100%' }}
+              style={{ fontSize: '1.25rem', padding: '0.75rem', border: '2px solid #000', borderRadius: '0', width: '100%' }}
             />
           </div>
 
+          {simCommitment && (
+            <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: 'var(--bg-elevated)', border: '1px solid var(--border-medium)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                <span className="eyebrow" style={{ fontSize: '0.65rem' }}>LIVE PEDERSEN COMMITMENT</span>
+                <button
+                  type="button"
+                  onClick={handleRerollSalt}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.7rem', color: 'var(--accent-vermilion)', textDecoration: 'underline' }}
+                >
+                  Re-roll Salt
+                </button>
+              </div>
+              <div className="mono" style={{ fontSize: '0.75rem', wordBreak: 'break-all', color: 'var(--text-primary)' }}>
+                {simCommitment}
+              </div>
+            </div>
+          )}
+
           <div style={{ 
-            marginTop: '2rem', 
-            paddingTop: '1.5rem', 
+            marginTop: '1.25rem', 
+            padding: '0.85rem 1rem', 
             borderTop: '2px solid #000',
             display: 'flex', 
             justifyContent: 'space-between',
             alignItems: 'center',
             backgroundColor: isCompliant ? '#000' : 'var(--accent-vermilion)',
-            color: '#fff',
-            padding: '1rem'
+            color: '#fff'
           }}>
-            <span className="eyebrow" style={{ color: '#fff' }}>VARIANCE</span>
-            <strong className="mono" style={{ fontSize: '1.5rem' }}>
+            <span className="eyebrow" style={{ color: '#fff' }}>CIRCUIT VARIANCE</span>
+            <strong className="mono" style={{ fontSize: '1.15rem' }}>
               {deltaFromReserve >= 0n ? `+${deltaFromReserve.toLocaleString()}` : deltaFromReserve.toLocaleString()} 
               {isCompliant ? ' [PASS]' : ' [FAIL]'}
             </strong>
           </div>
+
+          {selectedSimAuction && (
+            <button
+              onClick={() => onSelectBid(selectedSimAuction)}
+              className="btn btn-primary"
+              style={{
+                width: '100%',
+                padding: '0.85rem',
+                fontSize: '0.85rem',
+                fontWeight: 800,
+                marginTop: '1rem',
+                textTransform: 'uppercase',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              COMMIT SEALED BID TO ZK LEDGER &rarr;
+            </button>
+          )}
         </div>
       </div>
 

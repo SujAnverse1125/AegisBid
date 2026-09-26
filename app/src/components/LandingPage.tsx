@@ -16,7 +16,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigateTab,
   onSelectBid,
 }) => {
-  const activeAuctions = auctions.filter((a) => a.status === 'Open').slice(0, 3);
+  const [timeStr, setTimeStr] = React.useState<string>(() => new Date().toISOString().split('T')[1].slice(0, 8));
+  const [latency, setLatency] = React.useState<number>(12);
+  const [blockHeight, setBlockHeight] = React.useState<number>(185420);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeStr(new Date().toISOString().split('T')[1].slice(0, 8));
+      setLatency(Math.floor(11 + Math.random() * 4));
+      setBlockHeight(prev => prev + (Math.random() > 0.85 ? 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const activeAuctions = auctions.filter((a) => a.status === 'Open');
 
   return (
     <div className="brutalist-grid">
@@ -42,7 +55,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <tbody>
               <tr>
                 <th style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'left', color: 'var(--text-secondary)' }}>SYS.TIME</th>
-                <td style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'right' }}>{new Date().toISOString().split('T')[1].slice(0, 8)} GMT</td>
+                <td style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'right' }}>{timeStr} GMT</td>
+              </tr>
+              <tr>
+                <th style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'left', color: 'var(--text-secondary)' }}>BLOCK HEIGHT</th>
+                <td style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'right' }}>#{blockHeight}</td>
               </tr>
               <tr>
                 <th style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'left', color: 'var(--text-secondary)' }}>NETWORK</th>
@@ -53,8 +70,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <td style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'right' }}>{activeAuctions.length}</td>
               </tr>
               <tr>
-                <th style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'left', color: 'var(--text-secondary)' }}>LATENCY</th>
-                <td style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'right' }}>12ms</td>
+                <th style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'left', color: 'var(--text-secondary)' }}>WALLET ENCLAVE</th>
+                <td style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'right' }}>
+                  {wallet.connected && wallet.unshieldedAddress ? `${wallet.unshieldedAddress.slice(0, 6)}...${wallet.unshieldedAddress.slice(-4)}` : 'DISCONNECTED'}
+                </td>
+              </tr>
+              <tr>
+                <th style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'left', color: 'var(--text-secondary)' }}>CIRCUIT LATENCY</th>
+                <td style={{ borderTop: '1px solid var(--border-medium)', padding: '1rem 0', textAlign: 'right' }}>{latency}ms</td>
               </tr>
             </tbody>
           </table>
@@ -100,15 +123,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="editorial-img-container" style={{ height: '60vh', borderBottom: '2px solid var(--border-strong)' }}>
           <img src="/editorial-server-rack.jpg" alt="Cryptography Hardware" style={{ mixBlendMode: 'multiply' }} />
         </div>
-        <div className="content-panel" style={{ height: '40vh', background: 'var(--text-primary)', color: 'var(--bg-core)' }}>
-          <h3 className="eyebrow" style={{ color: 'var(--border-subtle)', marginBottom: '1rem' }}>Zero-Knowledge Circuit Stream</h3>
-          <p className="mono" style={{ fontSize: '0.8rem', lineHeight: 1.6, color: 'var(--border-medium)' }}>
-            &gt; INITIALIZING COMPACT 0.31.1...<br/>
-            &gt; SECURING ENCLAVE BOUNDARIES...<br/>
-            &gt; EVALUATING BID ≥ RESERVE...<br/>
-            &gt; ZK PROOF VERIFIED.<br/>
-            &gt; 0 BYTES OF DATA DISCLOSED.
-          </p>
+        <div className="content-panel" style={{ height: '40vh', background: 'var(--text-primary)', color: 'var(--bg-core)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <h3 className="eyebrow" style={{ color: 'var(--border-subtle)', margin: 0 }}>Zero-Knowledge Circuit Stream</h3>
+              <span style={{ fontSize: '0.65rem', color: '#10b981', fontFamily: 'var(--font-mono)' }}>● LIVE_PIPE</span>
+            </div>
+            <p className="mono" style={{ fontSize: '0.75rem', lineHeight: 1.6, color: 'var(--border-medium)', margin: 0 }}>
+              &gt; COMPACT RUNTIME: v0.31.1 (ZK-SNARK)<br/>
+              &gt; ENCLAVE STATUS: {wallet.connected ? `LOCAL_ISOLATED [${wallet.network.toUpperCase()}]` : 'EPHEMERAL_STANDBY'}<br/>
+              &gt; LEDGER HEIGHT: #{blockHeight} (SYNCHRONIZED)<br/>
+              &gt; ACTIVE TENDERS: {activeAuctions.length} REGISTERED<br/>
+              &gt; PRIVACY GUARANTEE: ZERO BYTES OF VALUATION EXPOSED
+            </p>
+          </div>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '0.5rem', fontSize: '0.7rem', color: '#999', fontFamily: 'var(--font-mono)', display: 'flex', justifyContent: 'space-between' }}>
+            <span>HASH: 0x9f4a...21c0</span>
+            <span style={{ color: 'var(--accent-vermilion)' }}>WITNESS LOCKED</span>
+          </div>
         </div>
       </div>
 

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Auction, FinalizedReceipt } from '../domain/types';
-import { Clock, ArrowUpRight, Lock, CheckCircle, FileText } from 'lucide-react';
+import { Clock, ArrowUpRight, Lock, CheckCircle, FileText, Plus } from 'lucide-react';
 
 interface AuctionListProps {
   auctions: Auction[];
   recentReceipts?: FinalizedReceipt[];
   onSelectBid: (auction: Auction) => void;
   onViewReceipt?: (receipt: FinalizedReceipt) => void;
+  onCreateAuction?: () => void;
 }
 
 export const AuctionList: React.FC<AuctionListProps> = ({
@@ -14,6 +15,7 @@ export const AuctionList: React.FC<AuctionListProps> = ({
   recentReceipts = [],
   onSelectBid,
   onViewReceipt,
+  onCreateAuction,
 }) => {
   return (
     <div className="brutalist-grid" style={{ width: '100vw', overflowX: 'hidden' }}>
@@ -64,16 +66,36 @@ export const AuctionList: React.FC<AuctionListProps> = ({
         />
       </div>
 
-      <div className="grid-col" style={{ gridColumn: 'span 4', borderBottom: '2px solid var(--text-primary)', padding: '1.75rem 3vw', backgroundColor: 'var(--bg-core)' }}>
-        <span className="eyebrow" style={{ display: 'block', color: 'var(--accent-vermilion)', marginBottom: '0.5rem', fontWeight: 600 }}>
-          TENDER REGISTRY // FINANCIAL DESK
-        </span>
-        <h1 className="font-display" style={{ fontSize: 'clamp(2rem, 3.5vw, 3.5rem)', color: 'var(--text-primary)', margin: '0 0 0.5rem 0', textTransform: 'uppercase', lineHeight: 1 }}>
-          Confidential Procurement
-        </h1>
-        <p className="mono" style={{ color: 'var(--text-primary)', fontSize: '0.9rem', maxWidth: '80ch', fontWeight: 500, margin: 0 }}>
-          CLIENT-SIDE ZERO-KNOWLEDGE PROOFS. NEITHER COMPETING BIDDERS NOR THE PROCUREMENT DESK CAN SEE YOUR VALUATION BEFORE THE DEADLINE.
-        </p>
+      <div className="grid-col" style={{ gridColumn: 'span 4', borderBottom: '2px solid var(--text-primary)', padding: '1.75rem 3vw', backgroundColor: 'var(--bg-core)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1.5rem' }}>
+        <div>
+          <span className="eyebrow" style={{ display: 'block', color: 'var(--accent-vermilion)', marginBottom: '0.5rem', fontWeight: 600 }}>
+            TENDER REGISTRY // FINANCIAL DESK
+          </span>
+          <h1 className="font-display" style={{ fontSize: 'clamp(2rem, 3.5vw, 3.5rem)', color: 'var(--text-primary)', margin: '0 0 0.5rem 0', textTransform: 'uppercase', lineHeight: 1 }}>
+            Confidential Procurement
+          </h1>
+          <p className="mono" style={{ color: 'var(--text-primary)', fontSize: '0.9rem', maxWidth: '80ch', fontWeight: 500, margin: 0 }}>
+            CLIENT-SIDE ZERO-KNOWLEDGE PROOFS. NEITHER COMPETING BIDDERS NOR THE PROCUREMENT DESK CAN SEE YOUR VALUATION BEFORE THE DEADLINE.
+          </p>
+        </div>
+        {onCreateAuction && (
+          <button
+            className="btn btn-primary"
+            onClick={onCreateAuction}
+            style={{
+              padding: '0.85rem 1.5rem',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              letterSpacing: '0.05em'
+            }}
+          >
+            <Plus size={16} /> NEW TENDER
+          </button>
+        )}
       </div>
 
       {auctions.map((auction) => {

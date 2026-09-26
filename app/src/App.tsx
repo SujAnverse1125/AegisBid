@@ -10,6 +10,7 @@ import { MetricsDashboard } from './components/MetricsDashboard';
 import { WalletModal } from './components/WalletModal';
 import { BidModal } from './components/BidModal';
 import { ReceiptModal } from './components/ReceiptModal';
+import { CreateAuctionModal } from './components/CreateAuctionModal';
 import { MarketingLanding } from './components/MarketingLanding';
 import { Auction, FinalizedReceipt, MidnightNetwork, WalletState } from './domain/types';
 import { getInitialWalletState } from './lib/midnight/walletConnector';
@@ -68,6 +69,7 @@ export function App() {
   const [auctions, setAuctions] = useState<Auction[]>(INITIAL_AUCTIONS);
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeReceipt, setActiveReceipt] = useState<FinalizedReceipt | null>(null);
   const [recentReceipts, setRecentReceipts] = useState<FinalizedReceipt[]>([]);
 
@@ -149,6 +151,7 @@ export function App() {
                     recentReceipts={recentReceipts}
                     onSelectBid={(auc) => setSelectedAuction(auc)}
                     onViewReceipt={(rec) => setActiveReceipt(rec)}
+                    onCreateAuction={() => setShowCreateModal(true)}
                   />
                 )}
 
@@ -164,7 +167,28 @@ export function App() {
 
                 {activeTab === 'privacy' && <PrivacyBoundaryView />}
 
-                {activeTab === 'assistant' && <GeminiAssistantPanel />}
+                {activeTab === 'assistant' && (
+                  <GeminiAssistantPanel
+                    onDeployPlan={(plan) => {
+                      const newAuction: Auction = {
+                        id: `auc-${Date.now()}`,
+                        auctionIdHex: '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+                        title: plan.recommendedTitle || 'AI Verified Confidential Tender',
+                        description: plan.proofPlanSummary || 'Deployed via Gemini ZK Advisor Terminal.',
+                        category: (plan.auctionCategory as any) || 'procurement',
+                        reservePrice: BigInt(plan.suggestedReservePrice || 100000),
+                        currency: 'tDUST',
+                        biddingDeadlineBlock: BigInt(185500 + Math.floor(Math.random() * 1000)),
+                        sellerIdentityHex: wallet.unshieldedAddress || '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+                        status: 'Open',
+                        network: wallet.network || 'mainnet',
+                        bidsCount: 0,
+                      };
+                      setAuctions(prev => [newAuction, ...prev]);
+                      setActiveTab('auctions');
+                    }}
+                  />
+                )}
 
                 {activeTab === 'metrics' && (
                   <MetricsDashboard
@@ -205,6 +229,22 @@ export function App() {
         <ReceiptModal
           receipt={activeReceipt}
           onClose={() => setActiveReceipt(null)}
+        />
+      )}
+
+      {showCreateModal && (
+        <CreateAuctionModal
+          wallet={wallet}
+          onClose={() => setShowCreateModal(false)}
+          onAuctionCreated={(newAuction) => {
+            setAuctions(prev => [newAuction, ...prev]);
+            setShowCreateModal(false);
+            setActiveTab('auctions');
+          }}
+          onRequireWallet={() => {
+            setShowCreateModal(false);
+            setShowWalletModal(true);
+          }}
         />
       )}
     </div>

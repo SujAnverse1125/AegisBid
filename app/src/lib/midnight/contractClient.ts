@@ -1,7 +1,7 @@
 /**
  * Contract client orchestrating Compact circuit execution and transaction lifecycle.
  */
-import { FinalizedReceipt, MidnightNetwork, StagedBidWitness, WalletState } from '../../domain/types';
+import { Auction, AuctionCategory, FinalizedReceipt, MidnightNetwork, StagedBidWitness, WalletState } from '../../domain/types';
 
 export interface SubmitBidParams {
   stagedBid: StagedBidWitness;
@@ -63,4 +63,37 @@ export async function executeSubmitSealedBid({
   };
 
   return receipt;
+}
+
+export interface CreateAuctionParams {
+  title: string;
+  description: string;
+  category: string;
+  reservePrice: bigint;
+  currency?: string;
+  biddingDeadlineBlock?: bigint;
+  wallet: WalletState;
+}
+
+export async function executeCreateAuction(params: CreateAuctionParams): Promise<Auction> {
+  const randomBytes = new Uint8Array(32);
+  crypto.getRandomValues(randomBytes);
+  const auctionIdHex = '0x' + Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+  const newAuction: Auction = {
+    id: `auc-${Date.now().toString(36)}`,
+    auctionIdHex,
+    title: params.title,
+    description: params.description,
+    category: (params.category as AuctionCategory) || 'procurement',
+    reservePrice: params.reservePrice,
+    currency: params.currency || 'tDUST',
+    biddingDeadlineBlock: params.biddingDeadlineBlock || 188_500n,
+    sellerIdentityHex: params.wallet.unshieldedAddress || ('0x' + Array.from(randomBytes.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join('')),
+    status: 'Open',
+    network: params.wallet.network,
+    bidsCount: 0,
+  };
+
+  return newAuction;
 }
