@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header, NavigationTab } from './components/Header';
 import { LandingPage } from './components/LandingPage';
@@ -156,7 +156,13 @@ export function App() {
 
                 {activeTab === 'assistant' && <GeminiAssistantPanel />}
 
-                {activeTab === 'metrics' && <MetricsDashboard />}
+                {activeTab === 'metrics' && (
+                  <MetricsDashboard
+                    wallet={wallet}
+                    auctions={auctions}
+                    recentReceipts={recentReceipts}
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
           </main>
