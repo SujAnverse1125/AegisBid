@@ -2,13 +2,17 @@
 
 ## Application Screenshots
 
+
+### CI/CD Pipeline & Passing Tests
+![Passing Tests](docs/tests-passing.png)
+
 ### Authentication Gate
 ![Landing Page](docs/landing.png)
 
 ### Main Workspace
 ![Workspace](docs/workspace.png)
 
-[![AegisBid CI/CD Pipeline](https://github.com/sujanm1125-ux/ProffFactor/actions/workflows/ci.yml/badge.svg)](https://github.com/sujanm1125-ux/ProffFactor/actions/workflows/ci.yml)
+[![AegisBid CI/CD Pipeline](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml/badge.svg)](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml)
 
 > Confidential Zero-Knowledge Sealed-Bid Procurement & Liquidation Engine on Midnight.
 
@@ -204,5 +208,6 @@ AegisBid leverages the Midnight network's zero-knowledge capabilities to ensure 
 - The identity of the bidder (protected via Pedersen commitments and zero-knowledge proofs).
 - Whether a specific bidder met the reserve price (they only see a valid proof of execution).
 - The private keys or entropy used to formulate the bid.
+
 
 
