@@ -1,4 +1,4 @@
-# AegisBid
+﻿# AegisBid
 
 [![AegisBid CI/CD Pipeline](https://github.com/sujanm1125-ux/ProffFactor/actions/workflows/ci.yml/badge.svg)](https://github.com/sujanm1125-ux/ProffFactor/actions/workflows/ci.yml)
 
@@ -135,37 +135,37 @@ To enable the AI Procurement Architect with live Google GenAI:
 ## 8. Repository Structure
 
 ```text
-├── .github/workflows/ci.yml       # GitHub Actions CI/CD pipeline
-├── backend/
-│   ├── alembic/                   # Alembic migrations & environment
-│   ├── src/
-│   │   ├── config.py              # Environment configuration
-│   │   ├── database.py            # Async SQLAlchemy connection
-│   │   ├── models.py              # Public auction & receipt models
-│   │   ├── schemas.py             # Pydantic schemas with privacy guardrails
-│   │   ├── gemini_service.py      # Sanitized Google GenAI integration
-│   │   ├── routes/                # Health, metrics, assistant & receipts
-│   │   └── main.py                # FastAPI application entrypoint
-│   └── tests/                     # Pytest suite (health, privacy, receipts)
-├── contract/
-│   ├── src/
-│   │   ├── aegisbid.compact       # Compact 0.31.1 smart contract
-│   │   ├── aegisbid.test.ts       # Contract invariant & ZK circuit tests
-│   │   └── managed/aegisbid/      # Compiled ZK-IR, keys, and JS bindings
-│   └── scripts/compile-contract.mjs
-├── app/
-│   ├── src/
-│   │   ├── components/            # Header, AuctionList, BidModal, etc.
-│   │   ├── domain/                # Domain types & client privateState manager
-│   │   ├── lib/                   # Wallet connector & contract client
-│   │   ├── tests/                 # Vitest frontend test suite
-│   │   ├── styles.css             # Swiss Information Design system
-│   │   └── App.tsx                # Application shell
-│   └── index.html
-├── docs/                          # Proposal, Privacy Model, Architecture, Demo Script
-├── proof-server.yml               # Docker Compose for Midnight proof server
-├── .env.example                   # Environment variable template
-└── README.md
+â”œâ”€â”€ .github/workflows/ci.yml       # GitHub Actions CI/CD pipeline
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ alembic/                   # Alembic migrations & environment
+â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”œâ”€â”€ config.py              # Environment configuration
+â”‚   â”‚   â”œâ”€â”€ database.py            # Async SQLAlchemy connection
+â”‚   â”‚   â”œâ”€â”€ models.py              # Public auction & receipt models
+â”‚   â”‚   â”œâ”€â”€ schemas.py             # Pydantic schemas with privacy guardrails
+â”‚   â”‚   â”œâ”€â”€ gemini_service.py      # Sanitized Google GenAI integration
+â”‚   â”‚   â”œâ”€â”€ routes/                # Health, metrics, assistant & receipts
+â”‚   â”‚   â””â”€â”€ main.py                # FastAPI application entrypoint
+â”‚   â””â”€â”€ tests/                     # Pytest suite (health, privacy, receipts)
+â”œâ”€â”€ contract/
+â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”œâ”€â”€ aegisbid.compact       # Compact 0.31.1 smart contract
+â”‚   â”‚   â”œâ”€â”€ aegisbid.test.ts       # Contract invariant & ZK circuit tests
+â”‚   â”‚   â””â”€â”€ managed/aegisbid/      # Compiled ZK-IR, keys, and JS bindings
+â”‚   â””â”€â”€ scripts/compile-contract.mjs
+â”œâ”€â”€ app/
+â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”œâ”€â”€ components/            # Header, AuctionList, BidModal, etc.
+â”‚   â”‚   â”œâ”€â”€ domain/                # Domain types & client privateState manager
+â”‚   â”‚   â”œâ”€â”€ lib/                   # Wallet connector & contract client
+â”‚   â”‚   â”œâ”€â”€ tests/                 # Vitest frontend test suite
+â”‚   â”‚   â”œâ”€â”€ styles.css             # Swiss Information Design system
+â”‚   â”‚   â””â”€â”€ App.tsx                # Application shell
+â”‚   â””â”€â”€ index.html
+â”œâ”€â”€ docs/                          # Proposal, Privacy Model, Architecture, Demo Script
+â”œâ”€â”€ proof-server.yml               # Docker Compose for Midnight proof server
+â”œâ”€â”€ .env.example                   # Environment variable template
+â””â”€â”€ README.md
 ```
 
 ---
@@ -196,4 +196,13 @@ AegisBid leverages the Midnight network's zero-knowledge capabilities to ensure 
 - The identity of the bidder (protected via Pedersen commitments and zero-knowledge proofs).
 - Whether a specific bidder met the reserve price (they only see a valid proof of execution).
 - The private keys or entropy used to formulate the bid.
+
+
+## Application Screenshots
+
+### Authentication Gate
+![Landing Page](docs/landing.png)
+
+### Main Workspace
+![Workspace](docs/workspace.png)
 
