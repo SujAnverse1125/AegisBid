@@ -39,23 +39,21 @@ export const PrivacyBoundaryView: React.FC = () => {
         </div>
         <div style={{ border: '2px solid var(--text-primary)', padding: '0.5rem', background: 'var(--bg-core)' }}>
           <img 
-            src="/crypto_blueprint.jpg" 
+            src="/crypto-blueprint.jpg" 
             alt="Cryptographic Blueprint" 
-            style={{ width: '100%', height: 'auto', display: 'block', filter: 'grayscale(100%) contrast(1.2)' }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'C:\\Users\\SUJAN\\.gemini\\antigravity\\brain\\e75c375a-44f9-450d-94fa-9e3f330a84b9\\crypto_blueprint_1790404328984.jpg';
-            }}
+            style={{ width: '100%', height: 'auto', display: 'block', filter: 'grayscale(100%) contrast(1.2)' }} 
           />
         </div>
       </div>
 
       {/* Col 2 & 3: Observation Table */}
-      <div className="grid-col" style={{ gridColumn: 'span 2', padding: '0 1.5rem' }}>
+      <div className="grid-col" style={{ gridColumn: 'span 2', padding: '0 1.5rem', minWidth: 0 }}>
         <h3 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', borderBottom: '2px solid var(--text-primary)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
           <Shield size={20} style={{ display: 'inline', marginRight: '0.5rem', color: 'var(--accent-vermilion)' }} />
           Observer Disclosure Matrix
         </h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid var(--text-primary)' }}>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid var(--text-primary)', minWidth: '450px' }}>
           <thead>
             <tr style={{ background: 'var(--text-primary)', color: 'var(--bg-core)' }}>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: 800 }}>Entity / Attribute</th>
@@ -96,6 +94,7 @@ export const PrivacyBoundaryView: React.FC = () => {
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Col 4: Local Private State Manager */}
