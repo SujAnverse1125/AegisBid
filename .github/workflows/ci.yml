@@ -46,7 +46,8 @@ jobs:
 
       - name: Run Backend Tests
         run: |
-          python -m pytest backend/tests -v
+          cd backend
+          python -m pytest tests -v
 
       - name: Run Contract & Frontend Tests
         run: |
@@ -79,3 +80,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
