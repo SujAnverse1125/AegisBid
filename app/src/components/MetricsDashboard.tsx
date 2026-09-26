@@ -150,9 +150,9 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({
               <td style={{ padding: '1rem', fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Sanitized Scope (Deterministic Fallback)</td>
             </tr>
             <tr style={{ borderBottom: '1px solid #ccc' }}>
-              <td style={{ padding: '1rem', fontWeight: 700, fontSize: '0.95rem' }}>Neon DB / Ledger Gateway</td>
+              <td style={{ padding: '1rem', fontWeight: 700, fontSize: '0.95rem' }}>Cryptographic State Store</td>
               <td style={{ padding: '1rem', color: 'var(--status-success, #2e7d32)', fontWeight: 800, fontSize: '0.95rem' }}>CONNECTED / SYNCED</td>
-              <td style={{ padding: '1rem', fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Branch-First State Store</td>
+              <td style={{ padding: '1rem', fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>SQLite / Local Client Vault</td>
             </tr>
             <tr style={{ borderBottom: '1px solid #ccc' }}>
               <td style={{ padding: '1rem', fontWeight: 700, fontSize: '0.95rem' }}>Compact Smart Contract</td>
