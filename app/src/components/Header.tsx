@@ -1,5 +1,5 @@
 import React from 'react';
-import { Radio, Wallet, LogOut } from 'lucide-react';
+import { Radio, Wallet, LogOut, FileText } from 'lucide-react';
 import { MidnightNetwork, WalletState } from '../domain/types';
 
 export type NavigationTab = 'overview' | 'auctions' | 'bidder' | 'privacy' | 'assistant' | 'metrics';
@@ -11,9 +11,12 @@ interface HeaderProps {
   onOpenWalletModal: () => void;
   onDisconnectWallet: () => void;
   onNetworkChange: (network: MidnightNetwork) => void;
+  userName?: string | null;
+  recentReceiptsCount?: number;
+  onOpenReceipts?: () => void;
 }
 
-export const Header: React.FC<HeaderProps & { userName?: string | null }> = ({
+export const Header: React.FC<HeaderProps> = ({
   wallet,
   activeTab,
   onSelectTab,
@@ -21,6 +24,8 @@ export const Header: React.FC<HeaderProps & { userName?: string | null }> = ({
   onDisconnectWallet,
   onNetworkChange,
   userName,
+  recentReceiptsCount = 0,
+  onOpenReceipts,
 }) => {
   return (
     <header className="header-bar header-grid" style={{ width: '100vw' }}>
@@ -87,6 +92,28 @@ export const Header: React.FC<HeaderProps & { userName?: string | null }> = ({
             <option value="preprod">Preprod</option>
             <option value="preview">Preview</option>
           </select>
+
+          {recentReceiptsCount > 0 && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onOpenReceipts}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                borderColor: 'var(--accent-vermilion)',
+                color: 'var(--accent-vermilion)',
+                fontSize: '0.75rem',
+                padding: '0.35rem 0.65rem',
+                fontWeight: 700,
+                background: 'var(--bg-core)',
+              }}
+              title="View Cryptographic Receipts"
+            >
+              <FileText size={12} />
+              RECEIPTS ({recentReceiptsCount})
+            </button>
+          )}
 
           {wallet.connected ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

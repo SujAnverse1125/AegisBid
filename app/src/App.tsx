@@ -114,6 +114,14 @@ export function App() {
             onDisconnectWallet={handleDisconnect}
             onNetworkChange={handleNetworkChange}
             userName={userName}
+            recentReceiptsCount={recentReceipts.length}
+            onOpenReceipts={() => {
+              if (recentReceipts.length > 0) {
+                setActiveReceipt(recentReceipts[0]);
+              } else {
+                setActiveTab('bidder');
+              }
+            }}
           />
 
           <main style={{ position: 'relative', flexGrow: 1, overflowX: 'hidden' }}>
@@ -138,7 +146,9 @@ export function App() {
                 {activeTab === 'auctions' && (
                   <AuctionList
                     auctions={auctions}
+                    recentReceipts={recentReceipts}
                     onSelectBid={(auc) => setSelectedAuction(auc)}
+                    onViewReceipt={(rec) => setActiveReceipt(rec)}
                   />
                 )}
 
