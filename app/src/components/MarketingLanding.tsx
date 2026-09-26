@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WalletState } from '../domain/types';
 
 interface MarketingLandingProps {
@@ -125,11 +125,11 @@ export const MarketingLanding: React.FC<MarketingLandingProps> = ({ onEnterWorks
             <span style={{ color: 'var(--accent-vermilion)' }}>Last Audited: Sep 2026</span>
           </div>
 
-          <div style={{ padding: '4rem 4rem 2rem 4rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ padding: '2.5rem 3rem 1.5rem 3rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h1 className="font-display" style={{
-              fontSize: 'clamp(5rem, 10vw, 9rem)', // Massive scale contrast
-              lineHeight: 0.85, // Extremely tight leading
-              marginBottom: '2rem',
+              fontSize: 'clamp(3rem, 5.5vw, 5.5rem)',
+              lineHeight: 0.95,
+              marginBottom: '1.5rem',
               textTransform: 'uppercase',
               letterSpacing: '-0.03em',
               opacity: isMounted ? 1 : 0,
@@ -144,13 +144,13 @@ export const MarketingLanding: React.FC<MarketingLandingProps> = ({ onEnterWorks
             <div style={{ 
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '2rem',
+              gap: '1.5rem',
               opacity: isMounted ? 1 : 0,
               transform: isMounted ? 'translateY(0)' : 'translateY(20px)',
               transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s',
-              marginTop: '2rem',
+              marginTop: '1.25rem',
               borderTop: '1px solid var(--border-medium)',
-              paddingTop: '2rem'
+              paddingTop: '1.25rem'
             }}>
               <p className="mono" style={{ 
                 fontSize: '0.75rem', 

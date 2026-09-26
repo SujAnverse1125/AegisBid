@@ -24,96 +24,99 @@ export const MetricsDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: '4rem 2rem', background: 'var(--bg-core, #f4f4f0)', color: '#111', minHeight: '100vh', width: '100vw', overflowX: 'hidden', boxSizing: 'border-box' }}>
-      <div style={{ borderBottom: '4px solid #111', paddingBottom: '2rem', marginBottom: '4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+    <div style={{ padding: '2.5rem 3vw', background: 'var(--bg-core, #f4f4f0)', color: '#111', minHeight: '100vh', width: '100vw', overflowX: 'hidden', boxSizing: 'border-box' }}>
+      <div style={{ borderBottom: '2px solid #111', paddingBottom: '1.25rem', marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h1 style={{ fontSize: 'clamp(3rem, 8vw, 8rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.05em', lineHeight: 0.9, margin: 0 }}>
+          <span className="eyebrow" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--accent-vermilion)' }}>
+            TELEMETRY // ENGINE MONITOR
+          </span>
+          <h1 style={{ fontSize: 'clamp(2.25rem, 4vw, 3.75rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.03em', lineHeight: 0.95, margin: 0 }}>
             System<br />Telemetry
           </h1>
         </div>
         <div style={{ textAlign: 'right', color: 'var(--accent-vermilion, #ff3300)' }}>
-          <Radio size={48} />
-          <div style={{ fontSize: '1rem', fontWeight: 800, marginTop: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Live Data Feed</div>
+          <Radio size={32} />
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginTop: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Live Data Feed</div>
         </div>
       </div>
 
-      <div className="brutalist-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', background: '#111', border: '4px solid #111' }}>
-        <div style={{ background: 'var(--bg-core, #f4f4f0)', padding: '2rem', display: 'flex', flexDirection: 'column' }} className="grid-col">
-          <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: 'auto', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            <Layers size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle', color: 'var(--accent-vermilion, #ff3300)' }}/> Public Auctions
+      <div className="brutalist-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px', background: '#111', border: '2px solid #111' }}>
+        <div style={{ background: 'var(--bg-core, #f4f4f0)', padding: '1.5rem', display: 'flex', flexDirection: 'column' }} className="grid-col">
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 'auto', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <Layers size={16} style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle', color: 'var(--accent-vermilion, #ff3300)' }}/> Public Auctions
           </div>
-          <div style={{ fontSize: 'clamp(5rem, 10vw, 15rem)', fontWeight: 900, lineHeight: 0.8, color: '#111', marginTop: '4rem', marginBottom: '2rem' }}>
+          <div style={{ fontSize: 'clamp(3rem, 5.5vw, 5.5rem)', fontWeight: 900, lineHeight: 0.85, color: '#111', marginTop: '2rem', marginBottom: '1.25rem' }}>
             {metrics.total_auctions}
           </div>
-          <div style={{ borderTop: '4px solid #111', paddingTop: '1rem', fontSize: '1.2rem', fontWeight: 800, textTransform: 'uppercase' }}>
+          <div style={{ borderTop: '2px solid #111', paddingTop: '0.75rem', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase' }}>
             {metrics.open_auctions} ACTIVE / {metrics.settled_auctions} SETTLED
           </div>
         </div>
 
-        <div style={{ background: 'var(--bg-core, #f4f4f0)', padding: '2rem', display: 'flex', flexDirection: 'column' }} className="grid-col">
-          <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: 'auto', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            <ShieldCheck size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle', color: 'var(--accent-vermilion, #ff3300)' }}/> Sealed Bids (ZK)
+        <div style={{ background: 'var(--bg-core, #f4f4f0)', padding: '1.5rem', display: 'flex', flexDirection: 'column' }} className="grid-col">
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 'auto', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <ShieldCheck size={16} style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle', color: 'var(--accent-vermilion, #ff3300)' }}/> Sealed Bids (ZK)
           </div>
-          <div style={{ fontSize: 'clamp(5rem, 10vw, 15rem)', fontWeight: 900, lineHeight: 0.8, color: '#111', marginTop: '4rem', marginBottom: '2rem' }}>
+          <div style={{ fontSize: 'clamp(3rem, 5.5vw, 5.5rem)', fontWeight: 900, lineHeight: 0.85, color: '#111', marginTop: '2rem', marginBottom: '1.25rem' }}>
             {metrics.total_sealed_bids}
           </div>
-          <div style={{ borderTop: '4px solid #111', paddingTop: '1rem', fontSize: '1.2rem', fontWeight: 800, textTransform: 'uppercase' }}>
+          <div style={{ borderTop: '2px solid #111', paddingTop: '0.75rem', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase' }}>
             {metrics.verified_commitments_count} VERIFIED PROOFS
           </div>
         </div>
 
-        <div style={{ background: 'var(--bg-core, #f4f4f0)', padding: '2rem', display: 'flex', flexDirection: 'column' }} className="grid-col">
-          <div style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: 'auto', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            <Activity size={20} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle', color: 'var(--accent-vermilion, #ff3300)' }}/> Network Status
+        <div style={{ background: 'var(--bg-core, #f4f4f0)', padding: '1.5rem', display: 'flex', flexDirection: 'column' }} className="grid-col">
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, marginBottom: 'auto', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <Activity size={16} style={{ display: 'inline', marginRight: '0.4rem', verticalAlign: 'middle', color: 'var(--accent-vermilion, #ff3300)' }}/> Network Status
           </div>
-          <div style={{ fontSize: 'clamp(4rem, 8vw, 12rem)', fontWeight: 900, lineHeight: 0.8, textTransform: 'uppercase', color: 'var(--accent-vermilion, #ff3300)', marginTop: '4rem', marginBottom: '2rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)', fontWeight: 900, lineHeight: 0.85, textTransform: 'uppercase', color: 'var(--accent-vermilion, #ff3300)', marginTop: '2rem', marginBottom: '1.25rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {metrics.active_network.substring(0, 4)}
           </div>
-          <div style={{ borderTop: '4px solid #111', paddingTop: '1rem', fontSize: '1.2rem', fontWeight: 800, textTransform: 'uppercase' }}>
+          <div style={{ borderTop: '2px solid #111', paddingTop: '0.75rem', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase' }}>
             STATUS: {health.status.toUpperCase()}
           </div>
         </div>
 
-        <div style={{ background: '#111', color: 'var(--bg-core, #f4f4f0)', padding: '0', position: 'relative', overflow: 'hidden', minHeight: '300px' }} className="grid-col">
+        <div style={{ background: '#111', color: 'var(--bg-core, #f4f4f0)', padding: '0', position: 'relative', overflow: 'hidden', minHeight: '220px' }} className="grid-col">
            <img src="/brutalist_data_viz.jpg" alt="Data Viz" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} />
-           <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', right: '2rem' }}>
-              <div style={{ borderTop: '4px solid var(--accent-vermilion, #ff3300)', paddingTop: '1rem', fontSize: '1.2rem', fontWeight: 800, color: 'var(--bg-core, #f4f4f0)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+           <div style={{ position: 'absolute', bottom: '1.25rem', left: '1.25rem', right: '1.25rem' }}>
+              <div style={{ borderTop: '2px solid var(--accent-vermilion, #ff3300)', paddingTop: '0.5rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--bg-core, #f4f4f0)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 DIAGNOSTIC VISUAL
               </div>
            </div>
         </div>
       </div>
       
-      <div style={{ marginTop: '8rem', borderTop: '4px solid #111', paddingTop: '4rem', marginBottom: '4rem' }}>
-        <h3 style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', marginBottom: '3rem' }}>Engine Diagnostics</h3>
+      <div style={{ marginTop: '3.5rem', borderTop: '2px solid #111', paddingTop: '2rem', marginBottom: '3rem' }}>
+        <h3 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2.25rem)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', marginBottom: '1.5rem' }}>Engine Diagnostics</h3>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
-            <tr style={{ borderBottom: '4px solid #111' }}>
-              <th style={{ padding: '1.5rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '1.2rem', letterSpacing: '0.05em' }}>Subsystem</th>
-              <th style={{ padding: '1.5rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '1.2rem', letterSpacing: '0.05em' }}>Status</th>
-              <th style={{ padding: '1.5rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '1.2rem', letterSpacing: '0.05em' }}>Mode</th>
+            <tr style={{ borderBottom: '2px solid #111' }}>
+              <th style={{ padding: '0.85rem 1rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Subsystem</th>
+              <th style={{ padding: '0.85rem 1rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Status</th>
+              <th style={{ padding: '0.85rem 1rem', fontWeight: 900, textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em' }}>Mode</th>
             </tr>
           </thead>
           <tbody>
-            <tr style={{ borderBottom: '2px solid #ccc' }}>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 800, fontSize: '1.5rem' }}>FastAPI Backend</td>
-              <td style={{ padding: '2rem 1.5rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 900, fontSize: '1.5rem' }}>{health.status.toUpperCase()}</td>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 600, fontSize: '1.2rem' }}>Stateless API Router</td>
+            <tr style={{ borderBottom: '1px solid #ccc' }}>
+              <td style={{ padding: '1rem', fontWeight: 700, fontSize: '0.95rem' }}>FastAPI Backend</td>
+              <td style={{ padding: '1rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 800, fontSize: '0.95rem' }}>{health.status.toUpperCase()}</td>
+              <td style={{ padding: '1rem', fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Stateless API Router</td>
             </tr>
-            <tr style={{ borderBottom: '2px solid #ccc' }}>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 800, fontSize: '1.5rem' }}>Neon DB</td>
-              <td style={{ padding: '2rem 1.5rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 900, fontSize: '1.5rem' }}>CONNECTED</td>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 600, fontSize: '1.2rem' }}>Branch-first</td>
+            <tr style={{ borderBottom: '1px solid #ccc' }}>
+              <td style={{ padding: '1rem', fontWeight: 700, fontSize: '0.95rem' }}>Neon DB</td>
+              <td style={{ padding: '1rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 800, fontSize: '0.95rem' }}>CONNECTED</td>
+              <td style={{ padding: '1rem', fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Branch-first</td>
             </tr>
-            <tr style={{ borderBottom: '2px solid #ccc' }}>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 800, fontSize: '1.5rem' }}>Proof Planner</td>
-              <td style={{ padding: '2rem 1.5rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 900, fontSize: '1.5rem' }}>{health.gemini_assistant.toUpperCase()}</td>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 600, fontSize: '1.2rem' }}>Sanitized Scope</td>
+            <tr style={{ borderBottom: '1px solid #ccc' }}>
+              <td style={{ padding: '1rem', fontWeight: 700, fontSize: '0.95rem' }}>Proof Planner</td>
+              <td style={{ padding: '1rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 800, fontSize: '0.95rem' }}>{health.gemini_assistant.toUpperCase()}</td>
+              <td style={{ padding: '1rem', fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Sanitized Scope</td>
             </tr>
-            <tr style={{ borderBottom: '2px solid #ccc' }}>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 800, fontSize: '1.5rem' }}>Compact Contract</td>
-              <td style={{ padding: '2rem 1.5rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 900, fontSize: '1.5rem' }}>VALIDATED</td>
-              <td style={{ padding: '2rem 1.5rem', fontWeight: 600, fontSize: '1.2rem' }}>Midnight 0.31.1</td>
+            <tr style={{ borderBottom: '1px solid #ccc' }}>
+              <td style={{ padding: '1rem', fontWeight: 700, fontSize: '0.95rem' }}>Compact Contract</td>
+              <td style={{ padding: '1rem', color: 'var(--accent-vermilion, #ff3300)', fontWeight: 800, fontSize: '0.95rem' }}>VALIDATED</td>
+              <td style={{ padding: '1rem', fontWeight: 500, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Midnight 0.31.1</td>
             </tr>
           </tbody>
         </table>

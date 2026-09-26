@@ -64,14 +64,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* Column 3: Primary Content & Giant Typography */}
       <div className="grid-col">
         <div className="content-panel" style={{ height: '100%' }}>
-          <span className="eyebrow" style={{ display: 'block', marginBottom: '2rem' }}>
+          <span className="eyebrow" style={{ display: 'block', marginBottom: '1rem' }}>
             AegisBid Protocol — Midnight Network
           </span>
           <h1 className="font-display" style={{ 
-            fontSize: 'clamp(3rem, 5vw, 6.5rem)', 
+            fontSize: 'clamp(2.25rem, 3.5vw, 4rem)', 
             lineHeight: 1.05, 
             color: 'var(--text-primary)',
-            marginBottom: '2rem',
+            marginBottom: '1.25rem',
             letterSpacing: '-0.02em'
           }}>
             The End of <br />
@@ -79,8 +79,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             Espionage.
           </h1>
           
-          <div style={{ marginTop: 'auto', marginBottom: '4rem' }}>
-            <p style={{ fontSize: '1.25rem', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '3rem' }}>
+          <div style={{ marginTop: 'auto', marginBottom: '1.75rem' }}>
+            <p style={{ fontSize: '1rem', lineHeight: 1.6, color: 'var(--text-secondary)', marginBottom: '1.75rem' }}>
               Traditional procurement forces vendors to surrender commercial leverage before contracts are awarded. AegisBid replaces trusted operators with zero-knowledge circuits, guaranteeing absolute price secrecy until settlement.
             </p>
             <div style={{ display: 'flex', gap: '1rem' }}>

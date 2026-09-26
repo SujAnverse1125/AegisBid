@@ -25,15 +25,15 @@ export const PrivacyBoundaryView: React.FC = () => {
   };
 
   return (
-    <div className="brutalist-grid" style={{ minHeight: '100vh', padding: 'var(--spacing-xl) 0' }}>
+    <div className="brutalist-grid" style={{ minHeight: '100vh', padding: '2rem 2vw' }}>
       {/* Col 1: Title and Image */}
-      <div className="grid-col" style={{ gridColumn: 'span 1', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div className="grid-col" style={{ gridColumn: 'span 1', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingRight: '1.5rem' }}>
         <div>
           <span className="eyebrow" style={{ color: 'var(--accent-vermilion)' }}>ZERO-KNOWLEDGE ARCHITECTURE</span>
-          <h1 style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', fontWeight: 900, lineHeight: 1, margin: '1rem 0' }}>
+          <h1 style={{ fontSize: 'clamp(1.75rem, 2.5vw, 2.75rem)', fontWeight: 900, lineHeight: 1.05, margin: '0.75rem 0' }}>
             CRYPTOGRAPHIC<br/>PRIVACY<br/>BOUNDARY
           </h1>
-          <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '1.1rem', marginTop: '1rem' }}>
+          <p style={{ color: 'var(--text-primary)', fontWeight: 500, fontSize: '0.9rem', marginTop: '0.5rem', lineHeight: 1.5 }}>
             AegisBid utilizes Midnight’s Compact smart contract to evaluate bid eligibility inside zero-knowledge SNARK proofs.
           </p>
         </div>
@@ -50,9 +50,9 @@ export const PrivacyBoundaryView: React.FC = () => {
       </div>
 
       {/* Col 2 & 3: Observation Table */}
-      <div className="grid-col" style={{ gridColumn: 'span 2' }}>
-        <h3 style={{ fontSize: '1.5rem', fontWeight: 800, textTransform: 'uppercase', borderBottom: '4px solid var(--text-primary)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
-          <Shield size={24} style={{ display: 'inline', marginRight: '0.5rem', color: 'var(--accent-vermilion)' }} />
+      <div className="grid-col" style={{ gridColumn: 'span 2', padding: '0 1.5rem' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, textTransform: 'uppercase', borderBottom: '2px solid var(--text-primary)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
+          <Shield size={20} style={{ display: 'inline', marginRight: '0.5rem', color: 'var(--accent-vermilion)' }} />
           Observer Disclosure Matrix
         </h3>
         <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid var(--text-primary)' }}>
