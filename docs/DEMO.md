@@ -1,43 +1,15 @@
-# Guided Demo
-
-Use synthetic data only.
+# AegisBid: Guided Demo
 
 ## Preparation
-
 1. Run `npm install`.
-2. Run `npm run check`.
+2. Run `npm test`.
 3. Run `npm run dev`.
-4. Open `http://localhost:5173`.
-5. Connect an injected wallet if available, or select the clearly labeled demo wallet.
+4. Open `http://localhost:5173` (or visit [https://midnight-aegisbid1125.vercel.app/](https://midnight-aegisbid1125.vercel.app/)).
 
-## Happy path
-
-1. Select **Supplier** and register a synthetic invoice.
-2. Confirm that privacy labels distinguish local-only fields from public commitment data.
-3. Switch to **Buyer**, open the proposed invoice, and accept it.
-4. Switch to **Supplier**, choose a lender policy, and request financing.
-5. Observe the transaction drawer stages: proof, approval, submission, and finality.
-6. Switch to **Lender** and confirm the pending request.
-7. Switch to **Buyer** and mark the invoice paid.
-8. Open **Public explorer** and verify that no raw amount, due date, or invoice reference is shown.
-
-## Adversarial evidence
-
-The automated contract suite also demonstrates:
-
-- A non-admin cannot authorize a buyer.
-- A buyer cannot register a lender policy.
-- A buyer cannot confirm a selected lender's request.
-- A wrong supplier-control secret cannot request financing.
-- A second commitment with the same stable nullifier cannot be financed after confirmation.
-- A pending request cannot be released before its deadline and can be released at the deadline.
-
-Run it with:
-
-```powershell
-npm run test --workspace @prooffactor/contract
-```
-
-## Live Preprod note
-
-Demo-wallet activity is intentionally local. Do not describe it as a blockchain transaction. A live demo becomes available only after the Preprod adapter is configured and a contract address is recorded in `plan.md`.
+## 60-Second Walkthrough
+1. **Editorial Entrance Gate:** Explore the high-density Japanese Editorial landing page explaining Zero-Knowledge Sealed Bidding.
+2. **AI ZK Advisor:** Enter the Advisor tab. Input your Google Gemini API key (supports 2026 `AQ.` Authorization keys). Watch the real-time uplink validate `gemini-3.8-flash`. Compile a formal ZK proof plan for an ITAR satellite transceiver procurement.
+3. **Connect Wallet:** Click "Connect Wallet" to bind with 1AM Wallet on Midnight Preprod, or launch the interactive simulation sandbox.
+4. **Place Sealed Bid:** Select an active tender. Enter your private valuation (e.g. 150,000 tDUST). Observe the local witness generation and Pedersen commitment calculation.
+5. **Generate ZK Proof:** Click "GENERATE ZK PROOF & SUBMIT BID". Follow the 5-phase proof animation.
+6. **Cryptographic Receipt:** Inspect the on-chain receipt with 32-byte nullifier, commitment hash, and verified reserve predicate.\n

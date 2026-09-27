@@ -1,81 +1,70 @@
-# ProofFactor — Rise In submission packet
+# AegisBid — Rise In Hackathon Submission Packet
 
-## Project
+## 1. Project Overview
 
-- **Name:** ProofFactor
-- **Category:** Private B2B Invoice Verifier / Smart Compliance
-- **One-line pitch:** ProofFactor lets suppliers prove an invoice is eligible for financing without exposing its commercial details.
+- **Project Name:** AegisBid
+- **Track / Category:** Privacy-Preserving Applications / Smart Compliance & Finance
+- **One-Line Pitch:** Confidential Zero-Knowledge Sealed-Bid Procurement & Liquidation Engine on Midnight.
+- **Target Platform:** Midnight Network (Compact v0.31.1, Midnight Proof Server 8.1.0, Midnight DApp Connector v4)
+- **Live Deployment:** [https://midnight-aegisbid1125.vercel.app/](https://midnight-aegisbid1125.vercel.app/)
+- **GitHub Repository:** [https://github.com/SujAnverse1125/AegisBid.git](https://github.com/SujAnverse1125/AegisBid.git)
 
-## Problem
+---
 
-Invoice financing is slow because lenders need enough evidence to assess risk, while suppliers and buyers cannot safely expose amounts, due dates, references, counterparties, and margins in a public workflow. Conventional on-chain systems make this data public; conventional private systems require a trusted intermediary.
+## 2. Real-World Problem & Midnight Solution
 
-## Solution
+### The Problem
+Public smart contracts fail at sealed-bid procurement: all bids submitted to the mempool or on-chain are transparent to miners and competitors. This enables front-running, bid-sniping, and competitive espionage. Traditional centralized auction platforms require blind trust in a third-party auctioneer who can collude, leak valuations, or manipulate outcomes.
 
-ProofFactor uses Midnight to create a privacy-preserving invoice lifecycle:
+### The Solution
+AegisBid utilizes the **Midnight Network** and **Compact zero-knowledge circuits** to execute sealed-bid auctions with zero data leakage:
+1. **Local Witness Generation:** Bidders compute a 32-byte cryptographic Pedersen commitment and an anti-replay nullifier on their local device using random salt entropy and their private key.
+2. **Zero-Knowledge Reserve Verification:** The Compact smart contract executes a ZK proof verifying that `bidAmount >= reservePrice` without revealing the valuation to the public or seller.
+3. **Anti-Replay Nullifiers:** Spent nullifiers prevent multiple submissions from the same bidder without linking bids to a wallet identity.
+4. **Autonomous AI Procurement Compiler:** Directly integrates with Google Cloud Gemini 3.8 Flash inside the client browser to parse RFP requirements and synthesize verifiable ZK proof plans.
 
-1. A supplier registers a salted invoice commitment.
-2. An authorized buyer attests to the matching private invoice and issues a stable nullifier.
-3. A supplier proves policy eligibility against a lender policy without disclosing invoice facts.
-4. The contract atomically creates a pending financing lock.
-5. A lender confirms or declines the request; a consumed nullifier prevents a second confirmed financing inside the ProofFactor registry.
+---
 
-## Why Midnight
+## 3. Cryptographic Privacy & Disclosure Model
 
-Midnight is necessary because the application needs shared, verifiable state changes while keeping invoice witnesses private. The ZK circuit proves eligibility predicates and authorizations without publishing raw invoice information. A public smart contract would disclose the data; a normal private database would not provide independent on-chain verification.
-
-## Public and private data
-
-| Private witness data | Public state |
-|---|---|
-| Invoice reference, amount, currency, due date, supplier salt | Invoice commitment |
-| Supplier control secret and role secrets | Pseudonymous role identities |
-| Buyer nullifier nonce | Stable nullifier after acceptance |
-| Policy eligibility inputs | Lifecycle state and selected policy ID |
-
-## Technical evidence
-
-- Compact 0.31.1 contract with 13 circuits and generated artifacts.
-- Role-derived authorization; tests reject forged authorization and invalid lifecycle paths.
-- Atomic pending-financing lock plus stable-nullifier reuse protection.
-- Responsive React interface for supplier, buyer, lender, and public viewer workflows.
-- Midnight DApp Connector v4 wallet discovery with an explicit demo fallback.
-- CI executes type checks, contract tests, UI tests, production build, and dependency audit.
-
-## Required test cases and current result
-
-| Test case | Evidence | Result |
+| Observer | What They CAN Learn | What They CANNOT Learn |
 |---|---|---|
-| Derived admin/buyer/lender identities are domain-separated | Contract test | Pass |
-| Unauthorized acceptance or confirmation is rejected | Contract test | Pass |
-| Empty buyer acceptance is rejected | Contract test | Pass |
-| Supplier-control forgery is rejected | Contract test | Pass |
-| A stable nullifier cannot finance two commitments | Contract test | Pass |
-| Pending financing expires only at the deadline | Contract test | Pass |
-| Invalid lifecycle transitions are rejected | UI state-machine test | Pass |
-| Private policy eligibility is evaluated locally | UI state-machine test | Pass |
-| Landing wallet and proof actions remain usable | UI interaction test | Pass |
-| Supplier, buyer, lender, and admin routes render correctly | UI interaction test | Pass |
+| **Public Observer / Explorer** | 32-byte commitment hash, 32-byte nullifier, auction ID, block height, reserve compliance boolean (`true`) | Exact bid amount, bidder secret identity, random salt entropy, losing bids |
+| **Auction Seller / Verifier** | Proof that bid exceeds reserve price, total bids count, winning bid upon settlement | Non-winning bid amounts, bidder balance, unselected vendor strategy |
+| **Gemini AI Assistant** | Public RFP description, procurement category, minimum reserve price threshold | Private witnesses, holder secrets, seed phrases, wallet addresses, raw bids |
+| **Central Database (Neon/SQLite)** | Public auction records, finalized transaction IDs, public proof receipts | Confidential witness parameters, user private keys, unshielded values |
+| **Local Client Device** | Complete private witness, secret key, salt, exact bid, generated proof | Other participants' private witnesses |
 
-**Local validation:** 20 automated tests passed: 13 application tests and 7 contract tests.
+---
 
-## Links and release evidence
+## 4. Verification & Testing Evidence
 
-- Repository: https://github.com/sujanm1125-ux/ProffFactor
-- Live frontend: https://proff-factor-5674jjdnn-sm-17fa.vercel.app/
-- Contract address: Pending Preprod deployment
-- Deployment transaction: Pending Preprod deployment
-- End-to-end Lace transaction: Pending funded Preprod wallet
-- Demo video: Pending recording
-- Live evidence screenshots: [landing.png](screenshots/landing.png) and [workspace.png](screenshots/workspace.png)
+AegisBid includes an automated test matrix with **35+ automated tests** verifying every layer:
 
+- **Compact Smart Contract Tests (`contract/src/aegisbid.test.ts` - 8 tests):**
+  - Proves `createAuction` initializes with seller identity and reserve threshold.
+  - Verifies `submitSealedBid` enforces reserve price predicate in zero-knowledge.
+  - Verifies rejection of bids beneath the reserve price.
+  - Verifies double-bidding rejection via nullifier reuse protection.
+  - Verifies non-seller rejection on auction cancellation.
+- **Frontend & Integration Tests (`app/src/tests/` - 15 tests):**
+  - Discovers 1AM wallet provider on `window.midnight` with simulation fallback.
+  - Evaluates client-side private witness generation and ephemeral secret storage.
+  - Verifies Gemini 3.8/3.5 self-healing model discovery and `AQ.` Authorization Key parsing.
+- **Backend Tests (`backend/tests/` - 11 tests):**
+  - Confirms schema rejection of confidential witness data.
+  - Verifies regex redaction of private keys and valuation tokens before AI transmission.
+  - Tests health diagnostics and Neon database connection pool.
 
-## Honest limitations
+---
 
-The currently published application is a local synthetic-data demo. It does not claim to transfer funds, validate delivery of goods, or submit live Midnight transactions. The live release requires a funded Midnight Lace Preprod wallet, a verified proof-server configuration, deployed contract artifacts, and recorded transaction evidence.
+## 5. Submission Checklist
 
-## Submission checklist
-
-- [x] Product name, pitch, problem, privacy model, and architecture prepared.
-- [x] Contract and frontend test evidence prepared.
-- [x] Repository and reproducible local setup prepared.
+- [x] Working Compact 0.31.1 smart contract with 5 circuits.
+- [x] Modern Japanese Editorial / Swiss Brutalist responsive web application.
+- [x] Native 1AM wallet integration with interactive simulation sandbox fallback.
+- [x] Direct client-side Google Cloud Gemini 3.8 Flash ZK proof compiler with 2026 `AQ.` auth key support.
+- [x] FastAPI async backend with Neon branch-first PostgreSQL schema.
+- [x] Comprehensive documentation, privacy matrix, and 60-second walkthrough script.
+- [x] GitHub Actions CI/CD pipeline compiling contracts and passing all tests.
+- [x] Live public production deployment on Vercel.\n

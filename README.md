@@ -1,15 +1,17 @@
-﻿# AegisBid
+# AegisBid
 
 ## Application Screenshots
 
+### Live AI Advisor (Google Gemini 3.8 Flash)
+![Gemini ZK Advisor](docs/gemini-advisor.png)
 
 ### CI/CD Pipeline & Passing Tests
 ![Passing Tests](docs/tests-passing.png)
 
-### Authentication Gate
+### Authentication Gate & Editorial Landing
 ![Landing Page](docs/landing.png)
 
-### Main Workspace
+### Main Workspace (Tenders & Bidding Haven)
 ![Workspace](docs/workspace.png)
 
 [**Live Demo on Vercel**](https://midnight-aegisbid1125.vercel.app/) | [![AegisBid CI/CD Pipeline](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml/badge.svg)](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml)
@@ -42,7 +44,7 @@ In traditional centralized auctions, bidders must trust a third-party auctioneer
 |---|---|---|
 | **Public Observer / Explorer** | 32-byte commitment hash, 32-byte nullifier, auction ID, block height, reserve compliance boolean (`true`) | Exact bid amount, bidder secret identity, random salt entropy, losing bids |
 | **Auction Seller / Verifier** | Proof that bid exceeds reserve price, total bids count, winning bid upon settlement | Non-winning bid amounts, bidder balance, unselected vendor strategy |
-| **Gemini AI Assistant** | Public RFP description, procurement category, minimum reserve price | Private witnesses, holder secrets, seed phrases, wallet addresses, raw bids |
+| **Gemini AI Assistant** | Public RFP description, procurement category, minimum reserve price threshold | Private witnesses, holder secrets, seed phrases, wallet addresses, raw bids |
 | **Backend Database (Neon/SQLite)** | Public auction records, finalized transaction IDs, public proof receipts | Confidential witness fields (strictly rejected by Pydantic schema validation) |
 | **Local Client Device** | Complete private witness, secret key, salt, exact bid, generated proof | Other participants' private witnesses |
 
@@ -52,10 +54,10 @@ In traditional centralized auctions, bidders must trust a third-party auctioneer
 
 - **Smart Contract:** Compact 0.31.1 smart contract with 5 circuits (`createAuction`, `submitSealedBid`, `closeBidding`, `revealAndSettle`, `cancelAuction`).
 - **Privacy Network:** Midnight Preview and Preprod compatibility, Docker proof server 8.1.0, Compact devtools 0.5.1.
-- **Frontend:** React 19, TypeScript, Vite 6, Framer Motion, Midnight DApp Connector v4 (with 1AM wallet priority and interactive simulation fallback), Swiss Information Design system.
+- **Frontend:** React 19, TypeScript, Vite 6, Framer Motion, Midnight DApp Connector v4 (with 1AM wallet priority and interactive simulation fallback), Japanese Editorial / Swiss Brutalist Information Design system.
 - **Backend:** FastAPI, Python 3.12+, SQLAlchemy async, Alembic migrations, Pydantic v2 validation with privacy guardrails.
 - **Database:** Neon Postgres (branch-first workflow: direct URL for migrations, pooled URL for API) with SQLite local dev fallback.
-- **AI Integration:** Google GenAI SDK (`google-genai`) with regex sanitization, structured output, and deterministic local fallback.
+- **AI Integration:** Google Cloud Gemini 3.8 / 3.5 Flash direct client-side enclave integration with dual-channel authorization (`x-goog-api-key` header + URI-encoded parameters), autonomous self-healing model discovery, and deterministic local fallback.
 - **CI/CD:** GitHub Actions compiling Compact contracts, verifying ZK artifacts, running 35+ tests across contract, frontend, and backend, and building production bundles.
 
 ---
@@ -77,7 +79,7 @@ npm install
 pip install -r backend/requirements.txt
 ```
 
-### 2. Run Quality Gates & Tests (35 Tests)
+### 2. Run Quality Gates & Tests (35+ Tests)
 ```bash
 # Run contract & frontend tests (vitest)
 npm test
@@ -135,49 +137,79 @@ alembic upgrade head
 
 ---
 
-## 7. Gemini Assistant Privacy Boundary
+## 7. Gemini Assistant Enclave & Privacy Boundary
 
-To enable the AI Procurement Architect with live Google GenAI:
-1. Set `GEMINI_API_KEY=your_key_here` in `.env`.
-2. The backend actively redacts 64-character hex strings, secret clauses, and confidential valuations before transmitting the prompt.
-3. If no key is set or the service is offline, AegisBid automatically engages its **deterministic offline proof planner**.
+AegisBid features an **Autonomous Zero-Knowledge Proof Compiler** powered by Google Cloud Gemini:
+
+1. **Active 2026 Model Gating Resolution:** Automatically targets Google's active generation tier (**`gemini-3.8-flash`** and **`gemini-3.5-flash`**), completely eliminating the model gating and deprecation rejections associated with legacy 2.x models.
+2. **Dual-Channel Authorization (`AQ.` & `AIza`):** Natively supports Google's new 2026 **`AQ.` Authorization Keys** by transmitting both the official `x-goog-api-key` HTTP header and URI-encoded query parameters.
+3. **Client-Side Privacy Enclave:** Users can enter their Gemini API key directly into the browser. The key is stored strictly in client-side `localStorage` and is **never** transmitted to the backend server.
+4. **Autonomous Self-Healing:** The client includes an error payload parser (`extractRecommendedModel`). If Google ever advises switching to an updated model at runtime, the client dynamically adopts it and retries seamlessly without user intervention.
+5. **Zero Confidential Data Shared:** The AI assistant receives only the high-level RFP scope description, category, and reserve threshold. Ephemeral bidder secrets, Pedersen blinding factors, and private valuations remain strictly quarantined inside the user's browser memory.
+6. **Deterministic Offline Fallback:** If offline or if no key is provided, the built-in autonomous ZK engine synthesizes mathematically valid proof specifications locally.
 
 ---
 
 ## 8. Repository Structure
 
 ```text
-â”œâ”€â”€ .github/workflows/ci.yml       # GitHub Actions CI/CD pipeline
-â”œâ”€â”€ backend/
-â”‚   â”œâ”€â”€ alembic/                   # Alembic migrations & environment
-â”‚   â”œâ”€â”€ src/
-â”‚   â”‚   â”œâ”€â”€ config.py              # Environment configuration
-â”‚   â”‚   â”œâ”€â”€ database.py            # Async SQLAlchemy connection
-â”‚   â”‚   â”œâ”€â”€ models.py              # Public auction & receipt models
-â”‚   â”‚   â”œâ”€â”€ schemas.py             # Pydantic schemas with privacy guardrails
-â”‚   â”‚   â”œâ”€â”€ gemini_service.py      # Sanitized Google GenAI integration
-â”‚   â”‚   â”œâ”€â”€ routes/                # Health, metrics, assistant & receipts
-â”‚   â”‚   â””â”€â”€ main.py                # FastAPI application entrypoint
-â”‚   â””â”€â”€ tests/                     # Pytest suite (health, privacy, receipts)
-â”œâ”€â”€ contract/
-â”‚   â”œâ”€â”€ src/
-â”‚   â”‚   â”œâ”€â”€ aegisbid.compact       # Compact 0.31.1 smart contract
-â”‚   â”‚   â”œâ”€â”€ aegisbid.test.ts       # Contract invariant & ZK circuit tests
-â”‚   â”‚   â””â”€â”€ managed/aegisbid/      # Compiled ZK-IR, keys, and JS bindings
-â”‚   â””â”€â”€ scripts/compile-contract.mjs
-â”œâ”€â”€ app/
-â”‚   â”œâ”€â”€ src/
-â”‚   â”‚   â”œâ”€â”€ components/            # Header, AuctionList, BidModal, etc.
-â”‚   â”‚   â”œâ”€â”€ domain/                # Domain types & client privateState manager
-â”‚   â”‚   â”œâ”€â”€ lib/                   # Wallet connector & contract client
-â”‚   â”‚   â”œâ”€â”€ tests/                 # Vitest frontend test suite
-â”‚   â”‚   â”œâ”€â”€ styles.css             # Swiss Information Design system
-â”‚   â”‚   â””â”€â”€ App.tsx                # Application shell
-â”‚   â””â”€â”€ index.html
-â”œâ”€â”€ docs/                          # Proposal, Privacy Model, Architecture, Demo Script
-â”œâ”€â”€ proof-server.yml               # Docker Compose for Midnight proof server
-â”œâ”€â”€ .env.example                   # Environment variable template
-â””â”€â”€ README.md
+.
+├── .github/
+│   └── workflows/
+│       └── ci.yml                     # GitHub Actions CI/CD pipeline (typecheck, tests, build)
+├── app/                               # React 19 Frontend Workspace
+│   ├── public/                        # Static assets & cryptographic blueprint imagery
+│   ├── src/
+│   │   ├── components/                # Japanese Editorial & Swiss Brutalist components
+│   │   │   ├── LandingPage.tsx        # High-density editorial entrance gate
+│   │   │   ├── Header.tsx             # Fixed navigation masthead & network selector
+│   │   │   ├── AuctionList.tsx        # Tenders terminal registry
+│   │   │   ├── BidderHaven.tsx        # Active bidding terminal & cryptographic receipt ledger
+│   │   │   ├── PrivacyBoundaryView.tsx # Client-side enclave & zero-knowledge visualizer
+│   │   │   ├── GeminiAssistantPanel.tsx # Gemini 3.8 ZK Compiler terminal & key manager
+│   │   │   ├── MetricsDashboard.tsx   # Scaling clamp typography telemetry dashboard
+│   │   │   ├── BidModal.tsx           # Private witness form & 5-phase proof generator
+│   │   │   └── CreateAuctionModal.tsx # Tender creation & reserve commitment modal
+│   │   ├── domain/                    # Domain types & client privateState manager
+│   │   ├── lib/
+│   │   │   ├── api/
+│   │   │   │   ├── geminiClient.ts    # Direct Gemini 3.8/3.5 client with AQ. auth & self-healing
+│   │   │   │   └── backendClient.ts   # FastAPI async client with fallback engine
+│   │   │   └── midnight/
+│   │   │       ├── walletConnector.ts # 1AM wallet priority & interactive simulation sandbox
+│   │   │       └── contractClient.ts  # Compact circuit invocation & proof staging
+│   │   ├── tests/                     # Vitest test suite (15 unit & integration tests)
+│   │   ├── styles.css                 # Japanese Editorial / Swiss Brutalist design system
+│   │   └── App.tsx                    # Main multi-view application shell
+│   └── package.json
+├── backend/                           # FastAPI Python Backend
+│   ├── alembic/                       # Alembic database migrations
+│   ├── src/
+│   │   ├── config.py                  # Pydantic environment configuration
+│   │   ├── database.py                # Async SQLAlchemy connection (Neon pooled / SQLite)
+│   │   ├── models.py                  # Public auction & receipt database models
+│   │   ├── schemas.py                 # Pydantic schemas with privacy guardrails
+│   │   ├── gemini_service.py          # Backend Google GenAI integration with secret redaction
+│   │   ├── routes/                    # Health, metrics, assistant & receipts endpoints
+│   │   └── main.py                    # FastAPI application entrypoint
+│   ├── tests/                         # Pytest suite (health, privacy, receipts)
+│   └── requirements.txt
+├── contract/                          # Midnight Compact Smart Contract Workspace
+│   ├── src/
+│   │   ├── aegisbid.compact           # Compact 0.31.1 smart contract (5 ZK circuits)
+│   │   ├── aegisbid.test.ts           # Contract invariant & ZK circuit tests (8 tests)
+│   │   └── managed/aegisbid/          # Compiled ZK-IR, proving keys, and TypeScript bindings
+│   └── package.json
+├── docs/                              # Project Documentation & Verification Packets
+│   ├── ARCHITECTURE.md                # System topology and privacy flow diagrams
+│   ├── PRIVACY_MODEL.md               # Cryptographic disclosure analysis and boundary matrix
+│   ├── PRODUCT_PROPOSAL.md            # Concept evaluation & commercial rationale
+│   ├── SUBMISSION.md                  # Official Rise In Hackathon submission packet
+│   ├── DEMO_SCRIPT.md                 # 60-Second judging walkthrough script
+│   └── gemini-advisor.png             # Live Gemini 3.8 ZK Advisor screenshot
+├── proof-server.yml                   # Docker Compose definition for Midnight Proof Server (8.1.0)
+├── .env.example                       # Environment variable template
+└── README.md                          # Project documentation and quick start guide
 ```
 
 ---
@@ -191,24 +223,4 @@ To enable the AI Procurement Architect with live Google GenAI:
 
 ## 10. License
 
-Apache-2.0. Built for the Midnight Privacy Network.
-
-## Privacy Model
-
-AegisBid leverages the Midnight network's zero-knowledge capabilities to ensure maximum privacy.
-
-**What an observer CAN learn:**
-- The fact that an auction exists and its public parameters (reserve price, deadline, category).
-- The number of bids submitted.
-- The cryptographic proof that a bid was processed.
-- When an auction is finalized, the total cleared amount.
-
-**What an observer CANNOT learn:**
-- The exact bid amount of any participant.
-- The identity of the bidder (protected via Pedersen commitments and zero-knowledge proofs).
-- Whether a specific bidder met the reserve price (they only see a valid proof of execution).
-- The private keys or entropy used to formulate the bid.
-
-
-
-
+Apache-2.0. Built for the Midnight Privacy Network.\n

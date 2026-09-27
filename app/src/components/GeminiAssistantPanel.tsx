@@ -339,7 +339,7 @@ export const GeminiAssistantPanel: React.FC<GeminiAssistantPanelProps> = ({ onDe
             gap: '0.5rem'
           }}>
             <CheckCircle2 size={14} />
-            <span>KEY VERIFIED: Direct client-side calls to Google Cloud Gemini 1.5/2.0 Flash enabled with live reasoning.</span>
+            <span>KEY VERIFIED: Direct client-side calls to Google Cloud Gemini 3.8 / 3.5 Flash enabled with live reasoning.</span>
           </div>
         )}
       </div>
