@@ -1,27 +1,25 @@
 # AegisBid
 
-## Application Screenshots
+> **Confidential Zero-Knowledge Sealed-Bid Procurement & Liquidation Engine on Midnight.**
 
-### Live AI Advisor (Google Gemini 3.8 Flash)
-![Gemini ZK Advisor](docs/gemini-advisor.png)
+<div align="center">
 
-### CI/CD Pipeline & Passing Tests
-![Passing Tests](docs/tests-passing.png)
+[**🚀 Live Production Demo (Vercel)**](https://midnight-aegisbid1125.vercel.app/) &nbsp;&nbsp;|&nbsp;&nbsp; [**🎥 Video Proof & Walkthrough (Google Drive)**](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing) &nbsp;&nbsp;|&nbsp;&nbsp; [![AegisBid CI/CD Pipeline](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml/badge.svg)](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml)
 
-### Authentication Gate & Editorial Landing
+</div>
+
+---
+
+## Visual Walkthrough
+
+### 🏛️ Editorial Landing & Authentication Gate
 ![Landing Page](docs/landing.png)
 
-### Main Workspace (Tenders & Bidding Haven)
+### ⚡ Main Workspace (Tenders & Bidding Haven)
 ![Workspace](docs/workspace.png)
 
-### Video Proof & Walkthrough
-🎥 [**Watch AegisBid Video Proof & Demo (Google Drive)**](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing)
-
-[**Live Demo on Vercel**](https://midnight-aegisbid1125.vercel.app/) | [**Video Proof & Demo**](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing) | [![AegisBid CI/CD Pipeline](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml/badge.svg)](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml)
-
-> Confidential Zero-Knowledge Sealed-Bid Procurement & Liquidation Engine on Midnight.
-
-AegisBid enables government agencies, defense contractors, and financial institutions to conduct sealed-bid procurement and asset liquidations. Bidders mathematically prove eligibility and reserve-price compliance in zero-knowledge without revealing their exact valuations or bidding strategies.
+### 🤖 Live AI ZK Advisor (Google Gemini 3.8 Flash Direct Enclave)
+![Gemini ZK Advisor](docs/gemini-advisor.png)
 
 ---
 
@@ -83,6 +81,9 @@ pip install -r backend/requirements.txt
 ```
 
 ### 2. Run Quality Gates & Tests (35+ Tests)
+
+![Passing Tests](docs/tests-passing.png)
+
 ```bash
 # Run contract & frontend tests (vitest)
 npm test
