@@ -7,6 +7,7 @@
 - **One-Line Pitch:** Confidential Zero-Knowledge Sealed-Bid Procurement & Liquidation Engine on Midnight.
 - **Target Platform:** Midnight Network (Compact v0.31.1, Midnight Proof Server 8.1.0, Midnight DApp Connector v4)
 - **Live Deployment:** [https://midnight-aegisbid1125.vercel.app/](https://midnight-aegisbid1125.vercel.app/)
+- **Demo Video Proof:** [https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing)
 - **GitHub Repository:** [https://github.com/SujAnverse1125/AegisBid.git](https://github.com/SujAnverse1125/AegisBid.git)
 
 ---

@@ -1,5 +1,7 @@
 # AegisBid: 60-Second Video & Judging Walkthrough
 
+▶️ **Recorded Video Demonstration:** [Watch on Google Drive](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing)
+
 ## Scene 1: Problem & Concept (0:00 - 0:15)
 - **Visual:** Open AegisBid terminal interface at `http://localhost:5173`.
 - **Narration:** *"In public smart contracts, sealed-bid procurement is impossible: bids are transparent, enabling front-running and competitor surveillance. AegisBid solves this on Midnight with zero-knowledge proofs."*

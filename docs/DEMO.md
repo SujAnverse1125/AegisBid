@@ -1,5 +1,7 @@
 # AegisBid: Guided Demo
 
+▶️ **Video Proof & Demonstration:** [Watch on Google Drive](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing)
+
 ## Preparation
 1. Run `npm install`.
 2. Run `npm test`.

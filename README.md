@@ -14,7 +14,10 @@
 ### Main Workspace (Tenders & Bidding Haven)
 ![Workspace](docs/workspace.png)
 
-[**Live Demo on Vercel**](https://midnight-aegisbid1125.vercel.app/) | [![AegisBid CI/CD Pipeline](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml/badge.svg)](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml)
+### Video Proof & Walkthrough
+🎥 [**Watch AegisBid Video Proof & Demo (Google Drive)**](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing)
+
+[**Live Demo on Vercel**](https://midnight-aegisbid1125.vercel.app/) | [**Video Proof & Demo**](https://drive.google.com/file/d/1u8NSukxyiwpSuwenCp-n6fEvgPbmaHdH/view?usp=sharing) | [![AegisBid CI/CD Pipeline](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml/badge.svg)](https://github.com/SujAnverse1125/AegisBid/actions/workflows/ci.yml)
 
 > Confidential Zero-Knowledge Sealed-Bid Procurement & Liquidation Engine on Midnight.
 
