@@ -1,5 +1,6 @@
 ﻿/**
  * Direct Client-Side Gemini API integration for AegisBid ZK Advisor.
+ * Features automated model discovery across Gemini 1.5, 2.5, and 3.0 series.
  */
 import { GeminiPlan } from '../../domain/types';
 
@@ -10,8 +11,11 @@ export interface KeyValidationResult {
   error?: string;
 }
 
+// Cached working model for the active session
+let cachedWorkingModel = 'gemini-2.5-flash';
+
 /**
- * Validates a user-provided Gemini API key with a fast ping request.
+ * Discovers available models for the given API key and validates it with a ping.
  */
 export async function validateGeminiKey(apiKey: string): Promise<KeyValidationResult> {
   const cleanKey = apiKey.trim();
@@ -20,40 +24,90 @@ export async function validateGeminiKey(apiKey: string): Promise<KeyValidationRe
   }
 
   const startTime = Date.now();
-  const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash'];
-  let lastError = '';
 
-  for (const model of modelsToTry) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: 'ping' }] }],
-        }),
-        signal: AbortSignal.timeout(6000),
-      });
+  // Step 1: Auto-discover models available for this specific project / key
+  try {
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${cleanKey}`;
+    const listRes = await fetch(listUrl, { signal: AbortSignal.timeout(6000) });
 
-      const latencyMs = Date.now() - startTime;
-
-      if (res.ok) {
-        return { valid: true, model, latencyMs };
-      } else {
-        const errJson = await res.json().catch(() => ({}));
-        lastError = errJson?.error?.message || `HTTP ${res.status}: ${res.statusText}`;
-      }
-    } catch (e: any) {
-      lastError = e?.message || 'Network connectivity error';
+    if (!listRes.ok) {
+      const errJson = await listRes.json().catch(() => ({}));
+      const msg = errJson?.error?.message || `HTTP ${listRes.status}: ${listRes.statusText}`;
+      return {
+        valid: false,
+        model: 'none',
+        latencyMs: Date.now() - startTime,
+        error: msg,
+      };
     }
-  }
 
-  return {
-    valid: false,
-    model: 'none',
-    latencyMs: Date.now() - startTime,
-    error: lastError || 'Failed to authenticate with Google Gemini API.',
-  };
+    const listData = await listRes.json();
+    const availableModels: string[] = (listData?.models || [])
+      .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
+      .map((m: any) => m.name.replace(/^models\//, ''));
+
+    // Priority ordering: newest fast models first
+    const preferredOrder = [
+      'gemini-3.0-flash',
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-latest',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-latest',
+      'gemini-3.0-pro',
+      'gemini-2.5-pro',
+      'gemini-1.5-pro',
+    ];
+
+    let selectedModel = '';
+    for (const pref of preferredOrder) {
+      if (availableModels.includes(pref)) {
+        selectedModel = pref;
+        break;
+      }
+    }
+
+    // If none of the preferred matched, take the first available generateContent model
+    if (!selectedModel && availableModels.length > 0) {
+      selectedModel = availableModels[0];
+    }
+
+    if (!selectedModel) {
+      selectedModel = 'gemini-2.5-flash';
+    }
+
+    // Step 2: Validate by sending a small ping
+    const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${cleanKey}`;
+    const pingRes = await fetch(pingUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: 'ping' }] }],
+      }),
+      signal: AbortSignal.timeout(6000),
+    });
+
+    const latencyMs = Date.now() - startTime;
+
+    if (pingRes.ok) {
+      cachedWorkingModel = selectedModel;
+      return { valid: true, model: selectedModel, latencyMs };
+    } else {
+      const errJson = await pingRes.json().catch(() => ({}));
+      return {
+        valid: false,
+        model: selectedModel,
+        latencyMs,
+        error: errJson?.error?.message || `Ping failed on ${selectedModel}`,
+      };
+    }
+  } catch (e: any) {
+    return {
+      valid: false,
+      model: 'none',
+      latencyMs: Date.now() - startTime,
+      error: e?.message || 'Network connectivity error contacting Google Gemini API.',
+    };
+  }
 }
 
 /**
@@ -66,7 +120,16 @@ export async function generateGeminiPlan(
   reserve: number
 ): Promise<GeminiPlan> {
   const cleanKey = apiKey.trim();
-  const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+
+  // Try cached model first, followed by fallbacks
+  const modelsToTry = [
+    cachedWorkingModel,
+    'gemini-3.0-flash',
+    'gemini-2.5-flash',
+    'gemini-1.5-flash',
+    'gemini-2.5-pro',
+  ].filter((v, i, a) => a.indexOf(v) === i); // unique
+
   let lastError = '';
 
   const systemInstruction = `You are the Lead Zero-Knowledge Procurement Architect on the Midnight Network (Compact v0.31.1).
@@ -105,7 +168,7 @@ Respond ONLY with valid, raw JSON matching this schema:
             temperature: 0.2,
           },
         }),
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(12000),
       });
 
       if (!res.ok) {
@@ -120,6 +183,8 @@ Respond ONLY with valid, raw JSON matching this schema:
 
       const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
       const parsed = JSON.parse(cleanJson);
+
+      cachedWorkingModel = model;
 
       return {
         recommendedTitle: parsed.recommendedTitle || `AegisBid ZK: ${prompt.slice(0, 35)}...`,
