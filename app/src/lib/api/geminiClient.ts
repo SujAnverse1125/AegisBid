@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Direct Client-Side Gemini API integration for AegisBid ZK Advisor.
  * Features automated model discovery across Gemini 1.5, 2.5, and 3.0 series.
  */
@@ -12,7 +12,17 @@ export interface KeyValidationResult {
 }
 
 // Cached working model for the active session
-let cachedWorkingModel = 'gemini-2.5-flash';
+let cachedWorkingModel = 'gemini-3.8-flash';
+
+/**
+ * Extracts a suggested model name if Google returned a deprecation or migration notice in the error.
+ * Example error: "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash..."
+ */
+export function extractRecommendedModel(errorMessage: string): string | null {
+  if (!errorMessage) return null;
+  const match = errorMessage.match(/use\s+(?:models\/)?(gemini-[0-9.]+(?:-[a-z0-9_-]+)?)/i);
+  return match && match[1] ? match[1].toLowerCase() : null;
+}
 
 /**
  * Discovers available models for the given API key and validates it with a ping.
@@ -46,13 +56,17 @@ export async function validateGeminiKey(apiKey: string): Promise<KeyValidationRe
       .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
       .map((m: any) => m.name.replace(/^models\//, ''));
 
-    // Priority ordering: newest fast models first
+    // Priority ordering: 2026 active models for new accounts first
     const preferredOrder = [
+      'gemini-3.8-flash',
+      'gemini-3.5-flash',
       'gemini-3.0-flash',
       'gemini-2.5-flash',
       'gemini-2.5-flash-latest',
       'gemini-1.5-flash',
       'gemini-1.5-flash-latest',
+      'gemini-3.8-pro',
+      'gemini-3.5-pro',
       'gemini-3.0-pro',
       'gemini-2.5-pro',
       'gemini-1.5-pro',
@@ -66,38 +80,60 @@ export async function validateGeminiKey(apiKey: string): Promise<KeyValidationRe
       }
     }
 
-    // If none of the preferred matched, take the first available generateContent model
+    // If none of the preferred matched in catalog, default to gemini-3.8-flash or first available
     if (!selectedModel && availableModels.length > 0) {
       selectedModel = availableModels[0];
     }
 
     if (!selectedModel) {
-      selectedModel = 'gemini-2.5-flash';
+      selectedModel = 'gemini-3.8-flash';
     }
 
-    // Step 2: Validate by sending a small ping
-    const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${cleanKey}`;
-    const pingRes = await fetch(pingUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: 'ping' }] }],
-      }),
-      signal: AbortSignal.timeout(6000),
-    });
+    // Step 2: Validate by sending a small ping with self-healing fallback
+    const sendPing = async (modelName: string) => {
+      const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${cleanKey}`;
+      const pingRes = await fetch(pingUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: 'ping' }] }],
+        }),
+        signal: AbortSignal.timeout(6000),
+      });
+
+      if (pingRes.ok) {
+        return { ok: true, error: '' };
+      }
+      const errJson = await pingRes.json().catch(() => ({}));
+      return { ok: false, error: errJson?.error?.message || `Ping failed on ${modelName}` };
+    };
+
+    let pingResult = await sendPing(selectedModel);
+    let activeModel = selectedModel;
+
+    // Self-healing: If rejected because of account-level model gating, extract Google's recommended model and re-test
+    if (!pingResult.ok) {
+      const recommended = extractRecommendedModel(pingResult.error);
+      if (recommended && recommended !== selectedModel) {
+        const retryResult = await sendPing(recommended);
+        if (retryResult.ok) {
+          activeModel = recommended;
+          pingResult = retryResult;
+        }
+      }
+    }
 
     const latencyMs = Date.now() - startTime;
 
-    if (pingRes.ok) {
-      cachedWorkingModel = selectedModel;
-      return { valid: true, model: selectedModel, latencyMs };
+    if (pingResult.ok) {
+      cachedWorkingModel = activeModel;
+      return { valid: true, model: activeModel, latencyMs };
     } else {
-      const errJson = await pingRes.json().catch(() => ({}));
       return {
         valid: false,
-        model: selectedModel,
+        model: activeModel,
         latencyMs,
-        error: errJson?.error?.message || `Ping failed on ${selectedModel}`,
+        error: pingResult.error,
       };
     }
   } catch (e: any) {
@@ -121,14 +157,15 @@ export async function generateGeminiPlan(
 ): Promise<GeminiPlan> {
   const cleanKey = apiKey.trim();
 
-  // Try cached model first, followed by fallbacks
+  // Try cached model first, followed by active 3.x models, then fallbacks
   const modelsToTry = [
     cachedWorkingModel,
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
     'gemini-3.0-flash',
     'gemini-2.5-flash',
     'gemini-1.5-flash',
-    'gemini-2.5-pro',
-  ].filter((v, i, a) => a.indexOf(v) === i); // unique
+  ].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i); // unique
 
   let lastError = '';
 
@@ -155,7 +192,8 @@ Respond ONLY with valid, raw JSON matching this schema:
   "complianceNotes": "Clear regulatory, ITAR, or commercial risk assessment."
 }`;
 
-  for (const model of modelsToTry) {
+  for (let i = 0; i < modelsToTry.length; i++) {
+    const model = modelsToTry[i];
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
       const res = await fetch(url, {
@@ -173,7 +211,14 @@ Respond ONLY with valid, raw JSON matching this schema:
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        lastError = errJson?.error?.message || `HTTP ${res.status}: ${res.statusText}`;
+        const errMsg = errJson?.error?.message || `HTTP ${res.status}: ${res.statusText}`;
+        lastError = errMsg;
+
+        // Auto-heal if Google suggested an alternative model in the error message
+        const recommended = extractRecommendedModel(errMsg);
+        if (recommended && !modelsToTry.includes(recommended)) {
+          modelsToTry.splice(i + 1, 0, recommended);
+        }
         continue;
       }
 

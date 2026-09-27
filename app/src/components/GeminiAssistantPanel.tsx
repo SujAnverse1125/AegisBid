@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Terminal, Sparkles, PlusCircle, CheckCircle2, AlertCircle, RefreshCw, Key, Shield, Radio, Eye, EyeOff } from 'lucide-react';
 import { GeminiPlan } from '../domain/types';
 import { requestAssistantPlan } from '../lib/api/backendClient';
@@ -23,7 +23,7 @@ export const GeminiAssistantPanel: React.FC<GeminiAssistantPanelProps> = ({ onDe
   const [uplinkState, setUplinkState] = useState<UplinkState>(() => {
     return localStorage.getItem('aegisbid_gemini_key') ? 'LIVE_CLOUD' : 'IDLE';
   });
-  const [activeModel, setActiveModel] = useState<string>('gemini-1.5-flash');
+  const [activeModel, setActiveModel] = useState<string>('gemini-3.8-flash');
   const [keyLatency, setKeyLatency] = useState<number | null>(null);
   const [keyError, setKeyError] = useState<string | null>(null);
 
