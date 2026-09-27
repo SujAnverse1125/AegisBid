@@ -27,123 +27,101 @@ export function extractRecommendedModel(errorMessage: string): string | null {
 /**
  * Discovers available models for the given API key and validates it with a ping.
  */
+/**
+ * Discovers available models for the given API key and validates it with a ping.
+ * Uses direct ping with dual authorization (x-goog-api-key header + URI-encoded query param)
+ * to support both legacy AIza and new 2026 AQ. Authorization keys without catalog latency.
+ */
 export async function validateGeminiKey(apiKey: string): Promise<KeyValidationResult> {
-  const cleanKey = apiKey.trim();
+  const cleanKey = apiKey.trim().replace(/^["']|["']$/g, '');
   if (!cleanKey) {
     return { valid: false, model: 'none', latencyMs: 0, error: 'API key is required.' };
   }
 
   const startTime = Date.now();
 
-  // Step 1: Auto-discover models available for this specific project / key
-  try {
-    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${cleanKey}`;
-    const listRes = await fetch(listUrl, { signal: AbortSignal.timeout(6000) });
+  // Primary model candidate followed by fallbacks
+  const candidateModels = [
+    cachedWorkingModel,
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
+    'gemini-3.0-flash',
+    'gemini-2.5-flash',
+    'gemini-1.5-flash',
+  ].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
 
-    if (!listRes.ok) {
-      const errJson = await listRes.json().catch(() => ({}));
-      const msg = errJson?.error?.message || `HTTP ${listRes.status}: ${listRes.statusText}`;
-      return {
-        valid: false,
-        model: 'none',
-        latencyMs: Date.now() - startTime,
-        error: msg,
-      };
+  const sendPing = async (modelName: string, timeoutMs = 18000) => {
+    const encodedKey = encodeURIComponent(cleanKey);
+    const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodedKey}`;
+    
+    const res = await fetch(pingUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': cleanKey,
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: 'ping' }] }],
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+
+    if (res.ok) {
+      return { ok: true, error: '', status: res.status };
     }
+    const errJson = await res.json().catch(() => ({}));
+    const errMsg = errJson?.error?.message || `HTTP ${res.status}: ${res.statusText}`;
+    return { ok: false, error: errMsg, status: res.status };
+  };
 
-    const listData = await listRes.json();
-    const availableModels: string[] = (listData?.models || [])
-      .filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'))
-      .map((m: any) => m.name.replace(/^models\//, ''));
+  let lastError = '';
 
-    // Priority ordering: 2026 active models for new accounts first
-    const preferredOrder = [
-      'gemini-3.8-flash',
-      'gemini-3.5-flash',
-      'gemini-3.0-flash',
-      'gemini-2.5-flash',
-      'gemini-2.5-flash-latest',
-      'gemini-1.5-flash',
-      'gemini-1.5-flash-latest',
-      'gemini-3.8-pro',
-      'gemini-3.5-pro',
-      'gemini-3.0-pro',
-      'gemini-2.5-pro',
-      'gemini-1.5-pro',
-    ];
+  for (let i = 0; i < candidateModels.length; i++) {
+    const model = candidateModels[i];
+    try {
+      const pingResult = await sendPing(model);
+      const latencyMs = Date.now() - startTime;
 
-    let selectedModel = '';
-    for (const pref of preferredOrder) {
-      if (availableModels.includes(pref)) {
-        selectedModel = pref;
-        break;
+      if (pingResult.ok) {
+        cachedWorkingModel = model;
+        return { valid: true, model, latencyMs };
       }
-    }
 
-    // If none of the preferred matched in catalog, default to gemini-3.8-flash or first available
-    if (!selectedModel && availableModels.length > 0) {
-      selectedModel = availableModels[0];
-    }
+      lastError = pingResult.error;
 
-    if (!selectedModel) {
-      selectedModel = 'gemini-3.8-flash';
-    }
-
-    // Step 2: Validate by sending a small ping with self-healing fallback
-    const sendPing = async (modelName: string) => {
-      const pingUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${cleanKey}`;
-      const pingRes = await fetch(pingUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: 'ping' }] }],
-        }),
-        signal: AbortSignal.timeout(6000),
-      });
-
-      if (pingRes.ok) {
-        return { ok: true, error: '' };
+      // If the API key itself is invalid, fail fast without trying other models
+      if (lastError.toLowerCase().includes('api key not valid') || lastError.toLowerCase().includes('api_key_invalid')) {
+        return {
+          valid: false,
+          model,
+          latencyMs,
+          error: 'API key not valid. Please ensure the full AQ. auth key is copied from Google AI Studio.',
+        };
       }
-      const errJson = await pingRes.json().catch(() => ({}));
-      return { ok: false, error: errJson?.error?.message || `Ping failed on ${modelName}` };
-    };
 
-    let pingResult = await sendPing(selectedModel);
-    let activeModel = selectedModel;
-
-    // Self-healing: If rejected because of account-level model gating, extract Google's recommended model and re-test
-    if (!pingResult.ok) {
-      const recommended = extractRecommendedModel(pingResult.error);
-      if (recommended && recommended !== selectedModel) {
-        const retryResult = await sendPing(recommended);
-        if (retryResult.ok) {
-          activeModel = recommended;
-          pingResult = retryResult;
-        }
+      // If Google suggested an explicit model in the error, dynamically insert it as the next attempt
+      const recommended = extractRecommendedModel(lastError);
+      if (recommended && !candidateModels.includes(recommended)) {
+        console.warn(`[Gemini Client] Google recommended model ${recommended}. Retrying with recommended model...`);
+        candidateModels.splice(i + 1, 0, recommended);
       }
+    } catch (e: any) {
+      const isTimeout = e?.name === 'TimeoutError' || e?.name === 'AbortError' || e?.message?.includes('timed out');
+      lastError = isTimeout
+        ? 'Connection timed out contacting Google Gemini API (18s). Please check your internet connection or proxy.'
+        : (e?.message || 'Network connectivity error contacting Google Gemini API.');
+      
+      // If network timed out on the first model, don't cascade into infinite timeouts
+      if (isTimeout) break;
     }
-
-    const latencyMs = Date.now() - startTime;
-
-    if (pingResult.ok) {
-      cachedWorkingModel = activeModel;
-      return { valid: true, model: activeModel, latencyMs };
-    } else {
-      return {
-        valid: false,
-        model: activeModel,
-        latencyMs,
-        error: pingResult.error,
-      };
-    }
-  } catch (e: any) {
-    return {
-      valid: false,
-      model: 'none',
-      latencyMs: Date.now() - startTime,
-      error: e?.message || 'Network connectivity error contacting Google Gemini API.',
-    };
   }
+
+  return {
+    valid: false,
+    model: candidateModels[0] || 'none',
+    latencyMs: Date.now() - startTime,
+    error: lastError || 'Authentication ping failed across available Gemini models.',
+  };
 }
 
 /**
@@ -155,7 +133,7 @@ export async function generateGeminiPlan(
   category: string,
   reserve: number
 ): Promise<GeminiPlan> {
-  const cleanKey = apiKey.trim();
+  const cleanKey = apiKey.trim().replace(/^["']|["']$/g, '');
 
   // Try cached model first, followed by active 3.x models, then fallbacks
   const modelsToTry = [
@@ -195,10 +173,14 @@ Respond ONLY with valid, raw JSON matching this schema:
   for (let i = 0; i < modelsToTry.length; i++) {
     const model = modelsToTry[i];
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${cleanKey}`;
+      const encodedKey = encodeURIComponent(cleanKey);
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodedKey}`;
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': cleanKey,
+        },
         body: JSON.stringify({
           contents: [{ parts: [{ text: systemInstruction }] }],
           generationConfig: {
@@ -206,7 +188,7 @@ Respond ONLY with valid, raw JSON matching this schema:
             temperature: 0.2,
           },
         }),
-        signal: AbortSignal.timeout(12000),
+        signal: AbortSignal.timeout(25000),
       });
 
       if (!res.ok) {
@@ -241,7 +223,10 @@ Respond ONLY with valid, raw JSON matching this schema:
         fallbackUsed: false,
       };
     } catch (e: any) {
-      lastError = e?.message || 'Error executing Gemini generation';
+      const isTimeout = e?.name === 'TimeoutError' || e?.name === 'AbortError' || e?.message?.includes('timed out');
+      lastError = isTimeout
+        ? `Request timed out (25s) compiling ZK proof plan on ${model}.`
+        : (e?.message || 'Error executing Gemini generation');
     }
   }
 

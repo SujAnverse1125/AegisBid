@@ -71,7 +71,7 @@ export const GeminiAssistantPanel: React.FC<GeminiAssistantPanelProps> = ({ onDe
   }, []);
 
   const handleValidateKey = async (keyToTest = apiKey, showAlert = true) => {
-    const cleanKey = keyToTest.trim();
+    const cleanKey = keyToTest.trim().replace(/^["']|["']$/g, '');
     if (!cleanKey) {
       setUplinkState('IDLE');
       setKeyError('Please paste your Google Gemini API key first.');
@@ -229,7 +229,7 @@ export const GeminiAssistantPanel: React.FC<GeminiAssistantPanelProps> = ({ onDe
           <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
             <input
               type={showKey ? 'text' : 'password'}
-              placeholder="Paste Google Gemini API Key (e.g. AIzaSy...)"
+              placeholder="Paste Google Gemini API Key (e.g. AQ.Ab8... or AIzaSy...)"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               onKeyDown={(e) => {
